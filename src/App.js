@@ -8,7 +8,7 @@ function App() {
       <Autocomplete 
         data={data}
         width={100}
-        theme={'dark'} //dark, light or transperent
+        theme={'transparent'} //dark, light or transperent
       />
     </div>
   );

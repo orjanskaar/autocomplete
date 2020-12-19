@@ -16,6 +16,6 @@ body {
 .App {
     display: grid;
     grid-template-columns: 1fr 200px 1fr;
-    background-color: rgb(51, 49, 49);
+    background-color: rgb(154, 248, 110);
     height: 100%;
 }

@@ -8,7 +8,7 @@ export const Autocomplete = (props) => {
     const [displ, setDispl] = React.useState(false)
     const handleInput = (e) => {
         setList([])
-        if (e.target.value.length > 0) {
+        if (e.target.value.length > 1) {
             setDispl(true)
             function search(itm) {
             const value = e.target.value
@@ -61,8 +61,8 @@ const Input = styled.input `
     outline: none;
     margin-bottom: 2px;
     border: 1px solid gray;
-    background-color: ${props => props.theme === 'dark' ? '#444': props.theme === 'light' ? '#fff': props.theme === 'transparent' ? 'transparent' : '#fff'};
-    color: ${props => props.theme === 'dark' ? '#eee': props.theme === 'light' ? '#333': props.theme === 'transparent' ? '#333' : '#fff'};
+    background-color: ${props => props.theme === 'dark' ? '#444': props.theme === 'light' ? '#fff': props.theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
+    color: ${props => props.theme === 'dark' ? '#eee': props.theme === 'light' ? '#333': props.theme === 'transparent' ? '#eee' : '#fff'};
 `
 const List = styled.div `
     max-height: 300px;
@@ -70,8 +70,8 @@ const List = styled.div `
 const ListItem = styled.div `
     background-color: gray;
     padding: 0.5rem;
-    background-color: ${props => props.theme === 'dark' ? '#444': props.theme === 'light' ? '#fff': props.theme === 'transparent' ? 'transparent' : '#fff'};
-    color: ${props => props.theme === 'dark' ? '#eee': props.theme === 'light' ? '#333': props.theme === 'transparent' ? '#333' : '#fff'};
+    background-color: ${props => props.theme === 'dark' ? '#444': props.theme === 'light' ? '#fff': props.theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
+    color: ${props => props.theme === 'dark' ? '#eee': props.theme === 'light' ? '#333': props.theme === 'transparent' ? '#eee' : '#fff'};
     border-left: 2px solid blueviolet;
     margin-bottom: 1px;
     cursor: pointer;
