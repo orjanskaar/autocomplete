@@ -1,37 +1,65 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
 
 
-
 export const Autocomplete = (props) => {
-    const [list, setList] = React.useState([])
-    const [displ, setDispl] = React.useState(false)
+    document.body.addEventListener('click', (e) => {
+        if(!e.target.classList.contains('dontCloseMe')) {setDispl(false)}
+    })
+    const [list, setList] = useState([])
+    const [listPos, setListPos] = useState(-1)
+    const [displ, setDispl] = useState(false)
+
+    useEffect(()=> {
+        console.log(listPos)
+    }, [listPos])
     const handleInput = (e) => {
         setList([])
         if (e.target.value.length > 1) {
             setDispl(true)
             function search(itm) {
-            const value = e.target.value
-            const pattern = new RegExp(`${value}`, 'gi')
-            const str = itm.name
-            let result = pattern.test(str)
-            return result ? str : null
+                const value = e.target.value
+                let pattern
+                try {
+                    pattern = new RegExp(`${value}`, 'gi')
+                }catch(e) {
+                    console.log('illegal regex')
+                    return false
+                }
+                const str = itm.name
+                let result = pattern.test(str)
+
+                return result ? str : null
             }
             const array = props.data.filter(search)
             setList(array)
-        }else {setList([])}
+        }else {
+            setList([])
+        }
+
+        if(e.key === 'ArrowDown'){
+            if(listPos === list.length-2){
+                setListPos(0)
+            }else{
+                setListPos(listPos+1)
+            }
+        }
+        if(e.key === 'ArrowUp'){
+            if(listPos === 0) {setListPos(list.length-2)}else{setListPos(listPos-1)}
+        }
+
     }
 
     const handleClick = (e) => {
         const SearchBox = document.getElementById('custSearchBox')
-        console.log(e.target.innerHTML)
         SearchBox.value = e.target.innerHTML
         setDispl(false)
     }
     return (
         
-            <InpContainer id="InpContainer">
+            <InpContainer id="InpContainer" >
                 <Input 
+                    className="dontCloseMe"
                     id="custSearchBox" 
                     type="text" 
                     onKeyUp={handleInput} 
@@ -41,8 +69,8 @@ export const Autocomplete = (props) => {
                 />
                 {displ && <List>
                     {
-                        list.slice(0, 10).map(itm => {
-                            return <ListItem onClick={handleClick} theme={props.theme}>{itm.name}</ListItem>
+                        list.slice(0, 10).map((itm,index) => {
+                            return <ListItem className="dontCloseMe" onClick={handleClick} theme={props.theme} key={index}>{itm.name}</ListItem>
                         })
                     }
                 </List>}
@@ -64,10 +92,11 @@ const Input = styled.input `
     background-color: ${props => props.theme === 'dark' ? '#444': props.theme === 'light' ? '#fff': props.theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
     color: ${props => props.theme === 'dark' ? '#eee': props.theme === 'light' ? '#333': props.theme === 'transparent' ? '#eee' : '#fff'};
 `
-const List = styled.div `
+const List = styled.ul `
     max-height: 300px;
 `
-const ListItem = styled.div `
+const ListItem = styled.li `
+    list-style: none;
     background-color: gray;
     padding: 0.5rem;
     background-color: ${props => props.theme === 'dark' ? '#444': props.theme === 'light' ? '#fff': props.theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
