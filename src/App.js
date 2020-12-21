@@ -4,11 +4,11 @@ import data from './components/data'
 
 function App() {
   return (
-    <div className="App">
+    <div className="App" id="AppId123">
       <Autocomplete 
         data={data}
         width={100}
-        theme={'transparent'} //dark, light or transperent
+        theme={'transparent'} //dark, light or transparent
       />
     </div>
   );
