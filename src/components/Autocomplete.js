@@ -1,13 +1,14 @@
 // USAGE:
 
 // <Autocomplete 
+// placeholder={'Countries'}
 // data={data} //array of objects
 // width={100}
 // theme={'light'} //dark, light or transperent
 // />
 
 import React, {useEffect, useState} from 'react'
-import styled from 'styled-components'
+import styled, {createGlobalStyle } from 'styled-components'
 
 
 export const Autocomplete = (props) => {
@@ -128,6 +129,7 @@ export const Autocomplete = (props) => {
     return (
         
             <Wrapper id="InpContainer" >
+                <GlobalStyle />
                 <InpContainer>
                     <Input 
                     required
@@ -140,8 +142,8 @@ export const Autocomplete = (props) => {
                     autoComplete="off"
                     clr={color}
                     />
-                    <Span clr={color}>Search:</Span>
-                    <BgSpan></BgSpan>
+                    <Span clr={color}>{props.placeholder}</Span>
+                    
                 </InpContainer>
                 {displ && <List className="ultag_123">
                     {
@@ -153,7 +155,12 @@ export const Autocomplete = (props) => {
             </Wrapper>
     )
 }
-
+const GlobalStyle = createGlobalStyle`
+  body {
+    perspective: 1000;
+    backface-visibility: hidden;
+  }
+`
 const Wrapper = styled.div `
     margin-top: 150px;
     grid-column: 2;
@@ -169,7 +176,7 @@ const Span = styled.span `
     position:absolute;
     padding: 0 8px 0 6px;
     font-size: 0.9rem;
-    left: 15px;
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
@@ -178,18 +185,7 @@ const Span = styled.span `
     color: gray;
     z-index: 1;
 `
-const BgSpan = styled.p `
-    opacity: 0;
-    height: 5px;
-    width: 47px;
-    left: 13px;
-    top: 0;
-    transform: translateY(-50%);
-    background-color: inherit;
-    position: absolute;
-    transition: opacity 0.2s ease;
-    z-index: 0;
-`
+
 const Input = styled.input `
     width: ${props => props.width}%;
     outline: none;
@@ -203,23 +199,22 @@ const Input = styled.input `
     color: gray;
     :focus, :active{
         color: ${props => props.clr};
+        border: 1px solid ${props => props.clr};
     }
-    :valid + span{
-        left: 5px;
+
+    :valid + span {
+        left: 0;
         top: -8px;
         transform: scale(0.8);
+        background-color: inherit;
     }
-    :valid + span + p {
-        opacity: 1;
-    }
-    :focus + span + p {
-        opacity: 1;
-    }
-    :focus + span{
-        left: 5px;
+    :focus + span {
+        left: 0;
         top: -8px;
         transform: scale(0.8);
         color: ${props => props.clr};
+        background-color: inherit;
+        border-radius: 3px;
     }
 `
 const List = styled.ul `

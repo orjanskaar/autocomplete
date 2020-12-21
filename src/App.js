@@ -6,6 +6,7 @@ function App() {
   return (
     <div className="App" id="AppId123">
       <Autocomplete 
+        placeholder={'Countries'}
         data={data}
         width={100}
         theme={'transparent'} //dark, light or transparent
