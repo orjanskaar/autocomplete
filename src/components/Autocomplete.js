@@ -5,6 +5,7 @@ import styled from 'styled-components'
 export const Autocomplete = (props) => {
     document.body.addEventListener('click', (e) => {
         if(!e.target.classList.contains('dontCloseMe')) {setDispl(false)}
+        setListPos(-1)
     })
     const [list, setList] = useState([])
     const [listPos, setListPos] = useState(-1)
@@ -12,6 +13,7 @@ export const Autocomplete = (props) => {
 
     useEffect(()=> {
         console.log(listPos)
+
     }, [listPos])
     const handleInput = (e) => {
         setList([])
@@ -38,14 +40,22 @@ export const Autocomplete = (props) => {
         }
 
         if(e.key === 'ArrowDown'){
-            if(listPos === list.length-2){
+            if(listPos === list.length-1){
                 setListPos(0)
             }else{
                 setListPos(listPos+1)
             }
         }
         if(e.key === 'ArrowUp'){
-            if(listPos === 0) {setListPos(list.length-2)}else{setListPos(listPos-1)}
+            if(listPos <= 0) {setListPos(list.length-1)}else{setListPos(listPos-1)}
+        }
+        if(e.key === 'Enter'){
+            const SearchBox = document.getElementById('custSearchBox')
+            const listItems = document.getElementsByTagName('li')
+            if((listPos >= 0) && (listPos <= list.length)){
+                SearchBox.value = listItems[listPos].innerHTML
+            }
+            setDispl(false)
         }
 
     }
@@ -55,6 +65,14 @@ export const Autocomplete = (props) => {
         SearchBox.value = e.target.innerHTML
         setDispl(false)
     }
+
+    const handleMouseOver = () => {
+        const listItems = document.getElementsByTagName('li')
+        setListPos(-1)
+        for (let i=0;i<listItems.length;i++){
+            listItems[i].classList.remove('activeItem')
+        }
+    }
     return (
         
             <InpContainer id="InpContainer" >
@@ -62,15 +80,15 @@ export const Autocomplete = (props) => {
                     className="dontCloseMe"
                     id="custSearchBox" 
                     type="text" 
-                    onKeyUp={handleInput} 
+                    onKeyUp={handleInput}
                     width={props.width} 
                     theme={props.theme} 
                     autoComplete="off"
                 />
-                {displ && <List>
+                {displ && <List className="ultag_123">
                     {
                         list.slice(0, 10).map((itm,index) => {
-                            return <ListItem className="dontCloseMe" onClick={handleClick} theme={props.theme} key={index}>{itm.name}</ListItem>
+                            return <ListItem className={`dontCloseMe ${index===listPos?'activeItem':''}`} onClick={handleClick} theme={props.theme} key={index} onMouseOver={handleMouseOver}>{itm.name}</ListItem>
                         })
                     }
                 </List>}

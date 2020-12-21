@@ -19,3 +19,6 @@ body {
     background-color: rgb(154, 248, 110);
     height: 100%;
 }
+.activeItem{
+    transform: scale(1.1);
+}
