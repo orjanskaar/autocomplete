@@ -13,7 +13,8 @@ import styled, {createGlobalStyle } from 'styled-components'
 
 export const Autocomplete = (props) => {
     const [list, setList] = useState([])
-    const [color, setColor] = useState('')
+    const [colorHi, setColorHi] = useState('')
+    const [colorLo, setColorLo] = useState('')
     const [listPos, setListPos] = useState(-1)
     const [displ, setDispl] = useState(false)
 
@@ -38,14 +39,19 @@ export const Autocomplete = (props) => {
         let b_clr = Number(tmpval4[2]).toString(16)
             if (b_clr.length < 2) {b_clr = "0"+b_clr}
         const hex_clr = r_clr+g_clr+b_clr
-        const inv_clr = invertColor(hex_clr)
-        setColor(inv_clr)
+        const high_clr = invertColor(hex_clr)
+        // const low_clr = increase_brightness(high_clr, 50)
+        const low_clr = colorLuminance(high_clr, -0.3)
+
+        setColorHi(high_clr)
+        setColorLo(low_clr)
+        console.log(high_clr, low_clr)
         //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleInput = (e) => {
         setList([])
-        if (e.target.value.length > 1) {
+        if (e.target.value.length > 0) {
             setDispl(true)
             function search(itm) {
                 const value = e.target.value
@@ -62,7 +68,28 @@ export const Autocomplete = (props) => {
                 return result ? str : null
             }
             const array = props.data.filter(search)
-            setList(array)
+
+            let keyword = e.target.value;
+            let search_results = array
+                .filter(prof => {
+                    // Filter results by doing case insensitive match on name here
+                    return prof.name.toLowerCase().includes(keyword.toLowerCase());
+                })
+                .sort((a, b) => {
+                    // Sort results by matching name with keyword position in name
+                    if(a.name.toLowerCase().indexOf(keyword.toLowerCase()) > b.name.toLowerCase().indexOf(keyword.toLowerCase())) {
+                        return 1;
+                    } else if (a.name.toLowerCase().indexOf(keyword.toLowerCase()) < b.name.toLowerCase().indexOf(keyword.toLowerCase())) {
+                        return -1;
+                    } else {
+                        if(a.name > b.name)
+                            return 1;
+                        else
+                            return -1;
+                    }
+                })
+                setList(search_results)
+
         }else {
             setList([])
         }
@@ -125,7 +152,41 @@ export const Autocomplete = (props) => {
         var zeros = new Array(len).join('0');
         return (zeros + str).slice(-len);
     }
-
+    function increase_brightness(hex, percent){
+        // strip the leading # if it's there
+        hex = hex.replace(/^\s*#|\s*$/g, '');
+    
+        // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
+        if(hex.length === 3){
+            hex = hex.replace(/(.)/g, '$1$1');
+        }
+    
+        var r = parseInt(hex.substr(0, 2), 16),
+            g = parseInt(hex.substr(2, 2), 16),
+            b = parseInt(hex.substr(4, 2), 16);
+    
+        return '#' +
+           ((0|(1<<8) + r + (256 - r) * percent / 100).toString(16)).substr(1) +
+           ((0|(1<<8) + g + (256 - g) * percent / 100).toString(16)).substr(1) +
+           ((0|(1<<8) + b + (256 - b) * percent / 100).toString(16)).substr(1);
+    }
+    function colorLuminance(hex, lum) {
+        // Validate hex string
+        hex = String(hex).replace(/[^0-9a-f]/gi, "");
+        if (hex.length < 6) {
+          hex = hex.replace(/(.)/g, '$1$1');
+        }
+        lum = lum || 0;
+        // Convert to decimal and change luminosity
+        var rgb = "#",
+          c;
+        for (var i = 0; i < 3; ++i) {
+          c = parseInt(hex.substr(i * 2, 2), 16);
+          c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+          rgb += ("00" + c).substr(c.length);
+        }
+        return rgb;
+      }
     return (
         
             <Wrapper id="InpContainer" >
@@ -140,14 +201,18 @@ export const Autocomplete = (props) => {
                     width={props.width} 
                     theme={props.theme} 
                     autoComplete="off"
-                    clr={color}
+                    autoCorrect="off"
+                    spellCheck="false"
+                    clrHi={colorHi}
+                    clrLo={colorLo}
                     />
-                    <Span clr={color}>{props.placeholder}</Span>
+                    <Span clrHi={colorHi} clrLo={colorLo}>{props.placeholder}</Span>
                     
                 </InpContainer>
                 {displ && <List className="ultag_123">
                     {
-                        list.slice(0, 10).map((itm,index) => {
+                        
+                        list.slice(0, props.reslen).map((itm,index) => {
                             return <ListItem className={`dontCloseMe ${index===listPos?'activeItem':''}`} onClick={handleClick} theme={props.theme} key={index} onMouseOver={handleMouseOver}>{itm.name}</ListItem>
                         })
                     }
@@ -182,7 +247,7 @@ const Span = styled.span `
     pointer-events: none;
     transition: all 0.2s ease;
     /* color: ${props => props.clr}; */
-    color: gray;
+    color: ${props => props.clrLo};
     z-index: 1;
 `
 
@@ -192,16 +257,19 @@ const Input = styled.input `
     height: 100%;
     padding: 0 10px;
     margin-bottom: 2px;
-    border: 1px solid gray;
+    border: 1px solid ${props => props.clrLo};
     border-radius: 5px;
     box-shadow: none;
     background-color: inherit;
-    color: gray;
+    font-size: 1.05rem;
+    color: ${props => props.clrLo};
     :focus, :active{
-        color: ${props => props.clr};
-        border: 1px solid ${props => props.clr};
+        color: ${props => props.clrHi};
+        border: 1px solid ${props => props.clrHi};
     }
-
+    :hover{
+        border: 1px solid ${props => props.clrHi};
+    }
     :valid + span {
         left: 0;
         top: -8px;
@@ -212,7 +280,7 @@ const Input = styled.input `
         left: 0;
         top: -8px;
         transform: scale(0.8);
-        color: ${props => props.clr};
+        color: ${props => props.clrHi};
         background-color: inherit;
         border-radius: 3px;
     }

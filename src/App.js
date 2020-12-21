@@ -10,6 +10,7 @@ function App() {
         data={data}
         width={100}
         theme={'transparent'} //dark, light or transparent
+        reslen={10} //Max number of results displayed
       />
     </div>
   );
