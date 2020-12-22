@@ -16,7 +16,7 @@ body {
 .App {
     display: grid;
     grid-template-columns: 1fr 200px 1fr;
-    background-color: #282828;
+    background-color: #0c5a5a;
     height: 100%;
 }
 .activeItem{
