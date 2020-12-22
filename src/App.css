@@ -16,9 +16,7 @@ body {
 .App {
     display: grid;
     grid-template-columns: 1fr 200px 1fr;
-    background-color: #0c5a5a;
+    background-color: #e2f3ef ;
     height: 100%;
 }
-.activeItem{
-    transform: scale(1.1);
-}
+

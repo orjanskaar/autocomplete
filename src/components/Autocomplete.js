@@ -1,10 +1,10 @@
 // USAGE:
 
 // <Autocomplete 
-// placeholder={'Countries'}
-// data={data} //array of objects
-// width={100}
-// theme={'light'} //dark, light or transperent
+//  placeholder={'Countries'}
+//  data={data} //array of objects
+//  width={100} //percent
+//  theme={'light'} //dark, light or transperent
 // />
 
 import React, {useEffect, useState} from 'react'
@@ -40,12 +40,10 @@ export const Autocomplete = (props) => {
             if (b_clr.length < 2) {b_clr = "0"+b_clr}
         const hex_clr = r_clr+g_clr+b_clr
         const high_clr = invertColor(hex_clr)
-        // const low_clr = increase_brightness(high_clr, 50)
         const low_clr = colorLuminance(high_clr, -0.3)
 
         setColorHi(high_clr)
         setColorLo(low_clr)
-        console.log(high_clr, low_clr)
         //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -129,67 +127,20 @@ export const Autocomplete = (props) => {
             listItems[i].classList.remove('activeItem')
         }
     }
-    function invertColor(hex) {
-        if (hex.indexOf('#') === 0) {
-            hex = hex.slice(1);
+    const GlobalStyle = createGlobalStyle`
+        body {
+            perspective: 1000;
+            backface-visibility: hidden;
         }
-        // convert 3-digit hex to 6-digits.
-        if (hex.length === 3) {
-            hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+        .activeItem{
+            transform: translateY(0.5px) scale(1.1);
+            background-color: ${props.theme === 'dark' ? 'rgba(50,50,50,95)': props.theme === 'light' ? 'rgba(255,255,255,0.9)': props.theme === 'transparent' ? 'rgba(0,0,0,0.4)' : '#fff'};
+
         }
-        if (hex.length !== 6) {
-            throw new Error('Invalid HEX color.');
-        }
-        // invert color components
-        var r = (255 - parseInt(hex.slice(0, 2), 16)).toString(16),
-            g = (255 - parseInt(hex.slice(2, 4), 16)).toString(16),
-            b = (255 - parseInt(hex.slice(4, 6), 16)).toString(16);
-        // pad each with zeros and return
-        return '#' + padZero(r) + padZero(g) + padZero(b);
-    }
-    function padZero(str, len) {
-        len = len || 2;
-        var zeros = new Array(len).join('0');
-        return (zeros + str).slice(-len);
-    }
-    function increase_brightness(hex, percent){
-        // strip the leading # if it's there
-        hex = hex.replace(/^\s*#|\s*$/g, '');
-    
-        // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
-        if(hex.length === 3){
-            hex = hex.replace(/(.)/g, '$1$1');
-        }
-    
-        var r = parseInt(hex.substr(0, 2), 16),
-            g = parseInt(hex.substr(2, 2), 16),
-            b = parseInt(hex.substr(4, 2), 16);
-    
-        return '#' +
-           ((0|(1<<8) + r + (256 - r) * percent / 100).toString(16)).substr(1) +
-           ((0|(1<<8) + g + (256 - g) * percent / 100).toString(16)).substr(1) +
-           ((0|(1<<8) + b + (256 - b) * percent / 100).toString(16)).substr(1);
-    }
-    function colorLuminance(hex, lum) {
-        // Validate hex string
-        hex = String(hex).replace(/[^0-9a-f]/gi, "");
-        if (hex.length < 6) {
-          hex = hex.replace(/(.)/g, '$1$1');
-        }
-        lum = lum || 0;
-        // Convert to decimal and change luminosity
-        var rgb = "#",
-          c;
-        for (var i = 0; i < 3; ++i) {
-          c = parseInt(hex.substr(i * 2, 2), 16);
-          c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
-          rgb += ("00" + c).substr(c.length);
-        }
-        return rgb;
-      }
+    `
     return (
         
-            <Wrapper id="InpContainer" >
+            <Wrapper id="AppId123">
                 <GlobalStyle />
                 <InpContainer>
                     <Input 
@@ -219,13 +170,9 @@ export const Autocomplete = (props) => {
                 </List>}
             </Wrapper>
     )
+
 }
-const GlobalStyle = createGlobalStyle`
-  body {
-    perspective: 1000;
-    backface-visibility: hidden;
-  }
-`
+
 const Wrapper = styled.div `
     margin-top: 150px;
     grid-column: 2;
@@ -246,7 +193,6 @@ const Span = styled.span `
     transform: translateY(-50%);
     pointer-events: none;
     transition: all 0.2s ease;
-    /* color: ${props => props.clr}; */
     color: ${props => props.clrLo};
     z-index: 1;
 `
@@ -292,15 +238,59 @@ const ListItem = styled.li `
     list-style: none;
     background-color: gray;
     padding: 0.5rem;
-    background-color: ${props => props.theme === 'dark' ? '#444': props.theme === 'light' ? '#fff': props.theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
+    background-color: ${props => props.theme === 'dark' ? 'rgba(40,40,40,0.9)': props.theme === 'light' ? 'rgba(255,255,255,0.85)': props.theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
     color: ${props => props.theme === 'dark' ? '#eee': props.theme === 'light' ? '#333': props.theme === 'transparent' ? '#eee' : '#fff'};
     border-left: 2px solid blueviolet;
     margin-bottom: 1px;
     cursor: pointer;
     transition: transform 0.2s ease;
     :hover {
-        background-color: ${props => props.theme === 'dark' ? '#555': props.theme === 'light' ? '#eee': props.theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
-        transform: scale(1.1);
+        background-color: ${props => props.theme === 'dark' ? 'rgba(50,50,50,95)': props.theme === 'light' ? 'rgba(255,255,255,0.9)': props.theme === 'transparent' ? 'rgba(0,0,0,0.4)' : '#fff'};
+        transform: translateY(0.5px) scale(1.1);
     }
 `
 
+function invertColor(hex) {
+    if (hex.indexOf('#') === 0) {
+        hex = hex.slice(1);
+    }
+    // convert 3-digit hex to 6-digits.
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (hex.length !== 6) {
+        throw new Error('Invalid HEX color.');
+    }
+    // invert color components
+    var r = (255 - parseInt(hex.slice(0, 2), 16)).toString(16),
+        g = (255 - parseInt(hex.slice(2, 4), 16)).toString(16),
+        b = (255 - parseInt(hex.slice(4, 6), 16)).toString(16);
+    // pad each with zeros and return
+    function padZero(str, len) {
+        len = len || 2;
+        var zeros = new Array(len).join('0');
+        return (zeros + str).slice(-len);
+    }
+    return '#' + padZero(r) + padZero(g) + padZero(b);
+}
+
+function colorLuminance(hex, lum) {
+    // Validate hex string
+    hex = String(hex).replace(/[^0-9a-f]/gi, "");
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (hex.length !== 6) {
+        throw new Error('Invalid HEX color.');
+    }
+    lum = lum || 0;
+    // Convert to decimal and change luminosity
+    var rgb = "#",
+      c;
+    for (var i = 0; i < 3; ++i) {
+      c = parseInt(hex.substr(i * 2, 2), 16);
+      c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+      rgb += ("00" + c).substr(c.length);
+    }
+    return rgb;
+  }

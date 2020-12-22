@@ -4,7 +4,7 @@ import data from './components/data'
 
 function App() {
   return (
-    <div className="App" id="AppId123">
+    <div className="App">
       <Autocomplete 
         placeholder={'Countries'}
         data={data}
