@@ -4,19 +4,26 @@
 //  placeholder={'Countries'}
 //  data={data} //array of objects
 //  width={100} //percent
-//  theme={'light'} //dark, light or transperent
+//  theme={'dark'} //dark, light or transperent
 // />
 
 import React from 'react'
 import styled, {createGlobalStyle } from 'styled-components'
-
-
+let theme
+let decoration  
 export const Autocomplete = (props) => {
+    theme = props.theme || 'dark'
+    decoration  =props.decoration_clr || 'blueviolet'
+    const results = props.results || 10
+    const [value, setValue] = React.useState('')
     const [list, setList] = React.useState([])
+    const [bgmain, setBgmain] = React.useState('')
     const [colorHi, setColorHi] = React.useState('')
     const [colorLo, setColorLo] = React.useState('')
     const [listPos, setListPos] = React.useState(-1)
     const [displ, setDispl] = React.useState(false)
+
+    const inputRef = React.useRef()
 
     React.useEffect(()=> {
         document.body.addEventListener('click', (e) => {
@@ -26,21 +33,23 @@ export const Autocomplete = (props) => {
     }, [])
 
     React.useEffect(()=> {
-        const clr = getComputedStyle(document.getElementById('AppId123'))
+        const clr_tmp = document.getElementsByClassName('App')
+        const clr = getComputedStyle(clr_tmp[0])
         const val = clr.backgroundColor
         const tmpval = val.split('(')
         const tmpval2 = tmpval[1].split(')')
-        const tmpval3 = tmpval2[0].split(')')
-        const tmpval4 = tmpval3[0].split(',')
+        const tmpval4 = tmpval2[0].split(', ')
         let r_clr = Number(tmpval4[0]).toString(16)
-            if (r_clr.length < 2) {r_clr = "0"+r_clr}
+        if (r_clr.length < 2) {r_clr = "0"+r_clr}
         let g_clr = Number(tmpval4[1]).toString(16)
-            if (g_clr.length < 2) {g_clr = "0"+g_clr}
+        if (g_clr.length < 2) {g_clr = "0"+g_clr}
         let b_clr = Number(tmpval4[2]).toString(16)
-            if (b_clr.length < 2) {b_clr = "0"+b_clr}
+        if (b_clr.length < 2) {b_clr = "0"+b_clr}
         const hex_clr = r_clr+g_clr+b_clr
+        setBgmain(hex_clr)
         const high_clr = invertColor(hex_clr)
         const low_clr = colorLuminance(high_clr, -0.3)
+        // console.log(low_clr)
 
         setColorHi(high_clr)
         setColorLo(low_clr)
@@ -51,24 +60,9 @@ export const Autocomplete = (props) => {
         setList([])
         if (e.target.value.length > 0) {
             setDispl(true)
-            function search(itm) {
-                const value = e.target.value
-                let pattern
-                try {
-                    pattern = new RegExp(`${value}`, 'gi')
-                }catch(e) {
-                    console.log('illegal regex')
-                    return false
-                }
-                const str = itm.name
-                let result = pattern.test(str)
-
-                return result ? str : null
-            }
-            const array = props.data.filter(search)
 
             let keyword = e.target.value;
-            let search_results = array
+            let search_results = props.data
                 .filter(prof => {
                     // Filter results by doing case insensitive match on name here
                     return prof.name.toLowerCase().includes(keyword.toLowerCase());
@@ -87,37 +81,38 @@ export const Autocomplete = (props) => {
                     }
                 })
                 setList(search_results)
-
         }else {
             setList([])
         }
 
         if(e.key === 'ArrowDown'){
-            if(listPos === list.length-1){
+            if(listPos === list.slice(0, results).length-1){
                 setListPos(0)
             }else{
                 setListPos(listPos+1)
             }
         }
         if(e.key === 'ArrowUp'){
-            if(listPos <= 0) {setListPos(list.length-1)}else{setListPos(listPos-1)}
+            if(listPos <= 0) {setListPos(list.slice(0, results).length-1)}else{setListPos(listPos-1)}
         }
         if(e.key === 'Enter'){
-            const SearchBox = document.getElementById('custSearchBox')
             const listItems = document.getElementsByTagName('li')
-            if((listPos >= 0) && (listPos <= list.length)){
-                SearchBox.value = listItems[listPos].innerHTML
+            if((listPos >= 0) && (listPos <= list.slice(0, results).length)){
+                setValue(listItems[listPos].innerHTML)
+                setListPos(-1)
             }
             setDispl(false)
         }
-
+        if(e.key === 'Escape'){
+            setListPos(-1)
+            setDispl(false)
+        }
     }
 
     const handleClick = (e) => {
-        const SearchBox = document.getElementById('custSearchBox')
-        SearchBox.value = e.target.innerHTML
         setDispl(false)
-        SearchBox.focus()
+        setValue(e.target.innerHTML)
+        inputRef.current.focus()
     }
 
     const handleMouseOver = () => {
@@ -127,6 +122,10 @@ export const Autocomplete = (props) => {
             listItems[i].classList.remove('activeItem')
         }
     }
+    const handleChange = (e) => {
+        // console.log(e.target.value)
+        setValue(e.target.value)
+    }
 
     return (
         
@@ -135,25 +134,28 @@ export const Autocomplete = (props) => {
                 <InpContainer>
                     <Input 
                     required
+                    value={value}
                     className="dontCloseMe"
-                    id="custSearchBox" 
+                    ref={inputRef}
                     type="text" 
                     onKeyUp={handleInput}
-                    width={props.width} 
-                    theme={props.theme} 
+                    onChange={handleChange}
+                    width={props.width || 100} 
+                    theme={theme} 
                     autoComplete="off"
                     autoCorrect="off"
                     spellCheck="false"
+                    bg_clr={bgmain}
                     clrHi={colorHi}
                     clrLo={colorLo}
                     />
-                    <Span clrHi={colorHi} clrLo={colorLo}>{props.placeholder}</Span>
+                    <Span clrHi={colorHi} clrLo={colorLo}>{props.placeholder || 'Search'}</Span>
                     
                 </InpContainer>
                 {displ && <List className="ultag_123">
                     {
-                        list.slice(0, props.reslen).map((itm,index) => {
-                            return <ListItem className={`dontCloseMe`} active={index===listPos?true:false} onClick={handleClick} theme={props.theme} key={index} onMouseOver={handleMouseOver}>{itm.name}</ListItem>
+                        list.slice(0, results).map((itm,index) => {
+                            return <ListItem className={`dontCloseMe`} active={index===listPos?true:false} onClick={handleClick} theme={theme} key={index} onMouseOver={handleMouseOver}>{itm.name}</ListItem>
                         })
                     }
                 </List>}
@@ -168,9 +170,8 @@ body {
 }
 `
 const Wrapper = styled.div `
-    margin-top: 150px;
-    grid-column: 2;
     background-color: inherit;
+    position: relative;
 `
 const InpContainer = styled.div `
     background-color: inherit;
@@ -178,15 +179,17 @@ const InpContainer = styled.div `
     height: 35px;
 `
 const Span = styled.span `
-    background-color: transparent;
+    background-color: inherit;
     position:absolute;
     padding: 0 8px 0 6px;
     font-size: 0.9rem;
+    letter-spacing: 1px;
+    height: min-content;
     left: 10px;
-    top: 50%;
+    top: 49%;
     transform: translateY(-50%);
     pointer-events: none;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease-in-out;
     color: ${props => props.clrLo};
     z-index: 1;
 `
@@ -196,11 +199,10 @@ const Input = styled.input `
     outline: none;
     height: 100%;
     padding: 0 10px;
-    margin-bottom: 2px;
     border: 1px solid ${props => props.clrLo};
     border-radius: 5px;
     box-shadow: none;
-    background-color: inherit;
+    background-color: #${props => props.bg_clr};
     font-size: 1.05rem;
     color: ${props => props.clrLo};
     :focus, :active{
@@ -214,38 +216,41 @@ const Input = styled.input `
         left: 0;
         top: -8px;
         transform: scale(0.8);
-        background-color: inherit;
+        background-color: #${props => props.bg_clr};
     }
     :focus + span {
         left: 0;
         top: -8px;
         transform: scale(0.8);
         color: ${props => props.clrHi};
-        background-color: inherit;
+        background-color: #${props => props.bg_clr};
         border-radius: 3px;
     }
 `
 const List = styled.ul `
     max-height: 300px;
+    position: absolute;
+    width: 100%;
+    z-index: 10;
 `
 const ListItem = styled.li `
     list-style: none;
     background-color: gray;
     padding: 0.5rem;
-    background-color: ${props => props.theme === 'dark' ? 'rgba(40,40,40,0.9)': props.theme === 'light' ? 'rgba(255,255,255,0.85)': props.theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
+    background-color: ${props => theme === 'dark' ? 'rgba(40,40,40,0.9)': theme === 'light' ? 'rgba(255,255,255,0.85)': theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
     ${props => 
-        (props.active&&props.theme==='dark')? 'background-color: rgba(50,50,50,95);transform: translateY(0.5px) scale(1.1)'
-        :(props.active&&props.theme==='light')? 'background-color: rgba(255,255,255,0.9);transform: translateY(0.5px) scale(1.1)'
-        :(props.active&&props.theme==='transparent')? 'background-color: rgba(0,0,0,0.4);transform: translateY(0.5px) scale(1.1)'
+        (props.active&&theme==='dark')? 'background-color: rgba(50,50,50,95);transform: scale(1.1)'
+        :(props.active&&theme==='light')? 'background-color: rgba(255,255,255,0.9);transform: scale(1.1)'
+        :(props.active&&theme==='transparent')? 'background-color: rgba(0,0,0,0.4);transform: scale(1.1)'
         :null
     };
-    color: ${props => props.theme === 'dark' ? '#eee': props.theme === 'light' ? '#333': props.theme === 'transparent' ? '#eee' : '#fff'};
-    border-left: 2px solid blueviolet;
+    color: ${props => theme === 'dark' ? '#eee': theme === 'light' ? '#333': theme === 'transparent' ? '#eee' : '#fff'};
+    border-left: 2px solid ${() => decoration};
     margin-bottom: 1px;
     cursor: pointer;
     transition: transform 0.2s ease;
     :hover {
-        background-color: ${props => props.theme === 'dark' ? 'rgba(50,50,50,95)': props.theme === 'light' ? 'rgba(255,255,255,0.9)': props.theme === 'transparent' ? 'rgba(0,0,0,0.4)' : '#fff'};
+        background-color: ${props => theme === 'dark' ? 'rgba(50,50,50,95)': theme === 'light' ? 'rgba(255,255,255,0.9)': theme === 'transparent' ? 'rgba(0,0,0,0.4)' : '#fff'};
         transform: translateY(0.5px) scale(1.1);
     }
 `

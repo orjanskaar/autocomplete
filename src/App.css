@@ -15,8 +15,16 @@ body {
 }
 .App {
     display: grid;
-    grid-template-columns: 1fr 200px 1fr;
+    grid-template-columns: 1fr 900px 1fr;
+    grid-template-rows: 8rem 200px;
     background-color: #1f282e ;
     height: 100%;
+}
+.holder {
+    display: flex;
+    justify-content: space-around;
+    grid-column: 2;
+    grid-row: 2;
+    /* background-color: inherit; */
 }
 
