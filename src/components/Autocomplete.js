@@ -7,25 +7,25 @@
 //  theme={'light'} //dark, light or transperent
 // />
 
-import React, {useEffect, useState} from 'react'
+import React from 'react'
 import styled, {createGlobalStyle } from 'styled-components'
 
 
 export const Autocomplete = (props) => {
-    const [list, setList] = useState([])
-    const [colorHi, setColorHi] = useState('')
-    const [colorLo, setColorLo] = useState('')
-    const [listPos, setListPos] = useState(-1)
-    const [displ, setDispl] = useState(false)
+    const [list, setList] = React.useState([])
+    const [colorHi, setColorHi] = React.useState('')
+    const [colorLo, setColorLo] = React.useState('')
+    const [listPos, setListPos] = React.useState(-1)
+    const [displ, setDispl] = React.useState(false)
 
-    useEffect(()=> {
+    React.useEffect(()=> {
         document.body.addEventListener('click', (e) => {
             if(!e.target.classList.contains('dontCloseMe')) {setDispl(false)}
             setListPos(-1)
         })
     }, [])
 
-    useEffect(()=> {
+    React.useEffect(()=> {
         const clr = getComputedStyle(document.getElementById('AppId123'))
         const val = clr.backgroundColor
         const tmpval = val.split('(')
@@ -127,17 +127,7 @@ export const Autocomplete = (props) => {
             listItems[i].classList.remove('activeItem')
         }
     }
-    const GlobalStyle = createGlobalStyle`
-        body {
-            perspective: 1000;
-            backface-visibility: hidden;
-        }
-        .activeItem{
-            transform: translateY(0.5px) scale(1.1);
-            background-color: ${props.theme === 'dark' ? 'rgba(50,50,50,95)': props.theme === 'light' ? 'rgba(255,255,255,0.9)': props.theme === 'transparent' ? 'rgba(0,0,0,0.4)' : '#fff'};
 
-        }
-    `
     return (
         
             <Wrapper id="AppId123">
@@ -162,9 +152,8 @@ export const Autocomplete = (props) => {
                 </InpContainer>
                 {displ && <List className="ultag_123">
                     {
-                        
                         list.slice(0, props.reslen).map((itm,index) => {
-                            return <ListItem className={`dontCloseMe ${index===listPos?'activeItem':''}`} onClick={handleClick} theme={props.theme} key={index} onMouseOver={handleMouseOver}>{itm.name}</ListItem>
+                            return <ListItem className={`dontCloseMe`} active={index===listPos?true:false} onClick={handleClick} theme={props.theme} key={index} onMouseOver={handleMouseOver}>{itm.name}</ListItem>
                         })
                     }
                 </List>}
@@ -172,7 +161,12 @@ export const Autocomplete = (props) => {
     )
 
 }
-
+const GlobalStyle = createGlobalStyle`
+body {
+    perspective: 1000;
+    backface-visibility: hidden;
+}
+`
 const Wrapper = styled.div `
     margin-top: 150px;
     grid-column: 2;
@@ -239,6 +233,12 @@ const ListItem = styled.li `
     background-color: gray;
     padding: 0.5rem;
     background-color: ${props => props.theme === 'dark' ? 'rgba(40,40,40,0.9)': props.theme === 'light' ? 'rgba(255,255,255,0.85)': props.theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
+    ${props => 
+        (props.active&&props.theme==='dark')? 'background-color: rgba(50,50,50,95);transform: translateY(0.5px) scale(1.1)'
+        :(props.active&&props.theme==='light')? 'background-color: rgba(255,255,255,0.9);transform: translateY(0.5px) scale(1.1)'
+        :(props.active&&props.theme==='transparent')? 'background-color: rgba(0,0,0,0.4);transform: translateY(0.5px) scale(1.1)'
+        :null
+    };
     color: ${props => props.theme === 'dark' ? '#eee': props.theme === 'light' ? '#333': props.theme === 'transparent' ? '#eee' : '#fff'};
     border-left: 2px solid blueviolet;
     margin-bottom: 1px;

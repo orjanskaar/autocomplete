@@ -16,7 +16,7 @@ body {
 .App {
     display: grid;
     grid-template-columns: 1fr 200px 1fr;
-    background-color: #e2f3ef ;
+    background-color: #1f282e ;
     height: 100%;
 }
 
