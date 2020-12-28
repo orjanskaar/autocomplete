@@ -2,20 +2,21 @@
 
 // <Autocomplete 
 //  placeholder={'Countries'}
-//  data={data} //array of objects
-//  width={100} //percent
-//  theme={'dark'} //dark, light or transperent
+//  data={data} //array of objects with key of 'name'
+//  decoration_clr={'orange'} //Left border of result list. Default 'blueviolet'
+//  results={15} //Limits number of results. Default: 10
+//  width={'250px'} //Any unit valid. Default: to 220px
+//  theme={'dark'} //dark, light or transperent. Default: 'dark'
 // />
 
 import React from 'react'
 import styled, {createGlobalStyle } from 'styled-components'
-let theme
-let decoration  
+ 
 const Autocomplete = (props) => {
-    theme = props.theme || 'dark'
-    decoration  =props.decoration_clr || 'blueviolet'
+    const theme = props.theme || 'dark'
+    const decoration  =props.decoration_clr || 'blueviolet'
     const results = props.results || 10
-    const [value, setValue] = React.useState('')
+    // const [value, setValue] = React.useState('')
     const [list, setList] = React.useState([])
     const [bgmain, setBgmain] = React.useState('')
     const [colorHi, setColorHi] = React.useState('')
@@ -81,7 +82,7 @@ const Autocomplete = (props) => {
         if(e.key === 'Enter'){
             const listItems = document.getElementsByTagName('li')
             if((listPos >= 0) && (listPos <= list.slice(0, results).length)){
-                setValue(listItems[listPos].innerHTML)
+                props.setValue(listItems[listPos].innerHTML)
                 setListPos(-1)
             }
             setDispl(false)
@@ -94,7 +95,7 @@ const Autocomplete = (props) => {
 
     const handleClick = (e) => {
         setDispl(false)
-        setValue(e.target.innerHTML)
+        props.setValue(e.target.innerHTML)
         inputRef.current.focus()
     }
 
@@ -107,23 +108,22 @@ const Autocomplete = (props) => {
     }
     const handleChange = (e) => {
         // console.log(e.target.value)
-        setValue(e.target.value)
+        props.setValue(e.target.value)
     }
 
     return (
         
-            <Wrapper>
+            <Wrapper bredde={props.width || '220px'}>
                 <GlobalStyle />
-                <InpContainer>
+                <InpContainer bredde={props.width || '220px'}>
                     <Input 
                     required
-                    value={value}
+                    value={props.value}
                     className="dontCloseMe"
                     ref={inputRef}
                     type="text" 
                     onKeyUp={handleInput}
                     onChange={handleChange}
-                    width={props.width || 100} 
                     theme={theme} 
                     autoComplete="off"
                     autoCorrect="off"
@@ -138,7 +138,7 @@ const Autocomplete = (props) => {
                 {displ && <List className="ultag_123">
                     {
                         list.slice(0, results).map((itm,index) => {
-                            return <ListItem className={`dontCloseMe`} active={index===listPos?true:false} onClick={handleClick} theme={theme} key={index} onMouseOver={handleMouseOver}>{itm.name}</ListItem>
+                            return <ListItem className={`dontCloseMe`} active={index===listPos?true:false} onClick={handleClick} theme={theme} decoration={decoration} key={index} onMouseOver={handleMouseOver}>{itm.name}</ListItem>
                         })
                     }
                 </List>}
@@ -159,13 +159,17 @@ const RegularInput = (props) => {
         //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    const handleChange = (e) => {
+        // console.log(e.target.value)
+        props.setValue(e.target.value)
+    }
       return (
-          <div>
-              <InpContainer>
+              <InpContainer bredde={props.width || '220px'}>
                 <Input 
                     required
                     type="text" 
-                    width={props.width || 100} 
+                    onChange={handleChange}
+                    value={props.value}
                     autoComplete="off"
                     autoCorrect="off"
                     spellCheck="false"
@@ -175,7 +179,6 @@ const RegularInput = (props) => {
                 />
                 <Span clrHi={colorHi} clrLo={colorLo}>{props.placeholder || 'Input'}</Span>
               </InpContainer>
-          </div>
       )
   }
 
@@ -191,10 +194,7 @@ const RegularInput = (props) => {
         //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     function validate(evt) {
-        // if(evt.key === ','){
-        //     evt.preventDefault()
-        //     return evt
-        // }
+
         var regex = /^[\d]*\.?[\d]*$/;
         let char = evt.key
         let value = evt.target.value
@@ -210,18 +210,16 @@ const RegularInput = (props) => {
       }
       
       const handleInput = (e) => {
-            props.setVal(e.target.value)
+            props.setValue(e.target.value)
       }
       return (
-          <div>
-              <InpContainer>
+              <InpContainer bredde={props.width || '220px'}>
                 <Input 
                     required
                     onKeyDown={validate}
                     onChange={handleInput}
                     value={props.value}
-                    type="text" 
-                    width={props.width || 100} 
+                    type="text"  
                     autoComplete="off"
                     autoCorrect="off"
                     spellCheck="false"
@@ -231,10 +229,58 @@ const RegularInput = (props) => {
                 />
                 <Span clrHi={colorHi} clrLo={colorLo}>{props.placeholder || 'Input'}</Span>
               </InpContainer>
-          </div>
       )
   }
 
+  const Dropdown = (props) => {
+    const [bgmain, setBgmain] = React.useState('')
+    const [colorHi, setColorHi] = React.useState('')
+    const [colorLo, setColorLo] = React.useState('')
+
+    const results = props.results || 10
+    const theme = props.theme || 'dark'
+
+    React.useEffect(()=> {
+        setBgmain(getStyle('App').hex_clr)
+        setColorHi(getStyle('App').high_clr)
+        setColorLo(getStyle('App').low_clr)
+        //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+
+    const handleChange = (e) => {
+        // console.log(e.target.value)
+        props.setValue(e.target.value)
+    }
+
+    return (
+                <InpContainer bredde={props.width || '220px'}>
+                    <Select 
+                    required
+                    onChange={handleChange}
+                    value={props.value}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck="false"
+                    bg_clr={bgmain}
+                    clrHi={colorHi}
+                    clrLo={colorLo}
+                    // defaultValue={{ label: "Select Dept", value: 0 }}
+                    > 
+                    <Option key={Math.random(99, 99999)*1000} theme={theme}></Option>
+                    {
+                        props.data.slice(0, results).map((itm,index) => {
+                            return <Option key={index+1} value={itm.name} theme={theme}>{itm.name}</Option>
+                        })
+                    }
+                    
+                    </Select>
+                    <Span clrHi={colorHi} clrLo={colorLo}>{props.placeholder || 'Select'}</Span>
+
+                </InpContainer>
+    )
+
+}
 const GlobalStyle = createGlobalStyle`
     body {
         perspective: 1000;
@@ -244,11 +290,13 @@ const GlobalStyle = createGlobalStyle`
 const Wrapper = styled.div `
     background-color: inherit;
     position: relative;
+    width: ${props => props.bredde};
 `
 const InpContainer = styled.div `
     background-color: inherit;
     position: relative;
     height: 35px;
+    width: ${props => props.bredde};
 `
 const Span = styled.span `
     background-color: inherit;
@@ -267,7 +315,7 @@ const Span = styled.span `
 `
 
 const Input = styled.input `
-    width: ${props => props.width}%;
+    width: 100%;
     outline: none;
     height: 100%;
     padding: 0 10px;
@@ -309,22 +357,67 @@ const ListItem = styled.li `
     list-style: none;
     background-color: gray;
     padding: 0.5rem;
-    background-color: ${props => theme === 'dark' ? 'rgba(40,40,40,0.9)': theme === 'light' ? 'rgba(255,255,255,0.85)': theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
+    background-color: ${props => props.theme === 'dark' ? 'rgba(40,40,40,0.9)': props.theme === 'light' ? 'rgba(255,255,255,0.85)': props.theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
     ${props => 
-        (props.active&&theme==='dark')? 'background-color: rgba(50,50,50,95);transform: scale(1.1)'
-        :(props.active&&theme==='light')? 'background-color: rgba(255,255,255,0.9);transform: scale(1.1)'
-        :(props.active&&theme==='transparent')? 'background-color: rgba(0,0,0,0.4);transform: scale(1.1)'
+        (props.active&&props.theme==='dark')? 'background-color: rgba(50,50,50,95);transform: scale(1.1)'
+        :(props.active&&props.theme==='light')? 'background-color: rgba(255,255,255,0.9);transform: scale(1.1)'
+        :(props.active&&props.theme==='transparent')? 'background-color: rgba(0,0,0,0.4);transform: scale(1.1)'
         :null
     };
-    color: ${props => theme === 'dark' ? '#eee': theme === 'light' ? '#333': theme === 'transparent' ? '#eee' : '#fff'};
-    border-left: 2px solid ${() => decoration};
+    color: ${props => props.theme === 'dark' ? '#eee': props.theme === 'light' ? '#333': props.theme === 'transparent' ? '#eee' : '#fff'};
+    border-left: 2px solid ${props => props.decoration};
     margin-bottom: 1px;
     cursor: pointer;
     transition: transform 0.2s ease;
     :hover {
-        background-color: ${props => theme === 'dark' ? 'rgba(50,50,50,95)': theme === 'light' ? 'rgba(255,255,255,0.9)': theme === 'transparent' ? 'rgba(0,0,0,0.4)' : '#fff'};
+        background-color: ${props => props.theme === 'dark' ? 'rgba(50,50,50,95)': props.theme === 'light' ? 'rgba(255,255,255,0.9)': props.theme === 'transparent' ? 'rgba(0,0,0,0.4)' : '#fff'};
         transform: translateY(0.5px) scale(1.1);
     }
+`
+const Select = styled.select `
+    width: 100%;
+    outline: none;
+    height: 100%;
+    padding: 0 10px;
+    border: 1px solid ${props => props.clrLo};
+    border-radius: 5px;
+    box-shadow: none;
+    background-color: #${props => props.bg_clr};
+    font-size: 1.05rem;
+    color: ${props => props.clrLo};
+    :focus, :active{
+        color: ${props => props.clrHi};
+        border: 1px solid ${props => props.clrHi};
+    }
+    :hover{
+        border: 1px solid ${props => props.clrHi};
+    }
+    :valid + span {
+        left: 0;
+        top: -8px;
+        transform: scale(0.8);
+        background-color: #${props => props.bg_clr};
+    }
+    :focus + span {
+        left: 0;
+        top: -8px;
+        transform: scale(0.8);
+        color: ${props => props.clrHi};
+        background-color: #${props => props.bg_clr};
+        border-radius: 3px;
+    }
+`
+const Option = styled.option `
+    list-style: none;
+    background-color: gray;
+    background-color: ${props => props.theme === 'dark' ? 'rgba(40,40,40,0.9)': props.theme === 'light' ? 'rgba(255,255,255,0.85)': props.theme === 'transparent' ? 'rgba(0,0,0,0.3)' : '#fff'};
+    ${props => 
+        (props.active&&props.theme==='dark')? 'background-color: rgba(50,50,50,95);transform: scale(1.1)'
+        :(props.active&&props.theme==='light')? 'background-color: rgba(255,255,255,0.9);transform: scale(1.1)'
+        :(props.active&&props.theme==='transparent')? 'background-color: rgba(0,0,0,0.4);transform: scale(1.1)'
+        :null
+    };
+    color: ${props => props.theme === 'dark' ? '#eee': props.theme === 'light' ? '#333': props.theme === 'transparent' ? '#eee' : '#fff'};
 `
 
 function invertColor(hex) {
@@ -395,4 +488,4 @@ function getStyle(elm) {
     }
 }
 
-export {Autocomplete, RegularInput, NumInput}
+export {Autocomplete, RegularInput, NumInput, Dropdown}
