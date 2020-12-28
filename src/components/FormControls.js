@@ -11,7 +11,7 @@ import React from 'react'
 import styled, {createGlobalStyle } from 'styled-components'
 let theme
 let decoration  
-export const Autocomplete = (props) => {
+const Autocomplete = (props) => {
     theme = props.theme || 'dark'
     decoration  =props.decoration_clr || 'blueviolet'
     const results = props.results || 10
@@ -33,26 +33,9 @@ export const Autocomplete = (props) => {
     }, [])
 
     React.useEffect(()=> {
-        const clr_tmp = document.getElementsByClassName('App')
-        const clr = getComputedStyle(clr_tmp[0])
-        const val = clr.backgroundColor
-        const tmpval = val.split('(')
-        const tmpval2 = tmpval[1].split(')')
-        const tmpval4 = tmpval2[0].split(', ')
-        let r_clr = Number(tmpval4[0]).toString(16)
-        if (r_clr.length < 2) {r_clr = "0"+r_clr}
-        let g_clr = Number(tmpval4[1]).toString(16)
-        if (g_clr.length < 2) {g_clr = "0"+g_clr}
-        let b_clr = Number(tmpval4[2]).toString(16)
-        if (b_clr.length < 2) {b_clr = "0"+b_clr}
-        const hex_clr = r_clr+g_clr+b_clr
-        setBgmain(hex_clr)
-        const high_clr = invertColor(hex_clr)
-        const low_clr = colorLuminance(high_clr, -0.3)
-        // console.log(low_clr)
-
-        setColorHi(high_clr)
-        setColorLo(low_clr)
+        setBgmain(getStyle('App').hex_clr)
+        setColorHi(getStyle('App').high_clr)
+        setColorLo(getStyle('App').low_clr)
         //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -129,7 +112,7 @@ export const Autocomplete = (props) => {
 
     return (
         
-            <Wrapper id="AppId123">
+            <Wrapper>
                 <GlobalStyle />
                 <InpContainer>
                     <Input 
@@ -163,11 +146,100 @@ export const Autocomplete = (props) => {
     )
 
 }
+
+const RegularInput = (props) => {
+    const [bgmain, setBgmain] = React.useState('')
+    const [colorHi, setColorHi] = React.useState('')
+    const [colorLo, setColorLo] = React.useState('')
+
+    React.useEffect(()=> {
+        setBgmain(getStyle('App').hex_clr)
+        setColorHi(getStyle('App').high_clr)
+        setColorLo(getStyle('App').low_clr)
+        //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+      return (
+          <div>
+              <InpContainer>
+                <Input 
+                    required
+                    type="text" 
+                    width={props.width || 100} 
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck="false"
+                    bg_clr={bgmain}
+                    clrHi={colorHi}
+                    clrLo={colorLo}
+                />
+                <Span clrHi={colorHi} clrLo={colorLo}>{props.placeholder || 'Input'}</Span>
+              </InpContainer>
+          </div>
+      )
+  }
+
+  const NumInput = (props) => {
+    const [bgmain, setBgmain] = React.useState('')
+    const [colorHi, setColorHi] = React.useState('')
+    const [colorLo, setColorLo] = React.useState('')
+
+    React.useEffect(()=> {
+        setBgmain(getStyle('App').hex_clr)
+        setColorHi(getStyle('App').high_clr)
+        setColorLo(getStyle('App').low_clr)
+        //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+    function validate(evt) {
+        // if(evt.key === ','){
+        //     evt.preventDefault()
+        //     return evt
+        // }
+        var regex = /^[\d]*\.?[\d]*$/;
+        let char = evt.key
+        let value = evt.target.value
+
+        let strtocheck = value + char
+
+        if(evt.key === 'Backspace'){
+            return evt.key
+        }else if( !regex.test(strtocheck) ) {
+            evt.preventDefault()
+            console.log(regex.test(strtocheck))
+        }
+      }
+      
+      const handleInput = (e) => {
+            props.setVal(e.target.value)
+      }
+      return (
+          <div>
+              <InpContainer>
+                <Input 
+                    required
+                    onKeyDown={validate}
+                    onChange={handleInput}
+                    value={props.value}
+                    type="text" 
+                    width={props.width || 100} 
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck="false"
+                    bg_clr={bgmain}
+                    clrHi={colorHi}
+                    clrLo={colorLo}
+                />
+                <Span clrHi={colorHi} clrLo={colorLo}>{props.placeholder || 'Input'}</Span>
+              </InpContainer>
+          </div>
+      )
+  }
+
 const GlobalStyle = createGlobalStyle`
-body {
-    perspective: 1000;
-    backface-visibility: hidden;
-}
+    body {
+        perspective: 1000;
+        backface-visibility: hidden;
+    }
 `
 const Wrapper = styled.div `
     background-color: inherit;
@@ -299,3 +371,28 @@ function colorLuminance(hex, lum) {
     }
     return rgb;
   }
+
+function getStyle(elm) {
+    const clr_tmp = document.getElementsByClassName(elm)
+    const clr = getComputedStyle(clr_tmp[0])
+    const val = clr.backgroundColor
+    const tmpval = val.split('(')
+    const tmpval2 = tmpval[1].split(')')
+    const tmpval4 = tmpval2[0].split(', ')
+    let r_clr = Number(tmpval4[0]).toString(16)
+    if (r_clr.length < 2) {r_clr = "0"+r_clr}
+    let g_clr = Number(tmpval4[1]).toString(16)
+    if (g_clr.length < 2) {g_clr = "0"+g_clr}
+    let b_clr = Number(tmpval4[2]).toString(16)
+    if (b_clr.length < 2) {b_clr = "0"+b_clr}
+    const hex_clr = r_clr+g_clr+b_clr
+    const high_clr = invertColor(hex_clr)
+    const low_clr = colorLuminance(high_clr, -0.3)
+    return {
+        hex_clr,
+        high_clr,
+        low_clr
+    }
+}
+
+export {Autocomplete, RegularInput, NumInput}
