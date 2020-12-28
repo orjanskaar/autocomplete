@@ -1,22 +1,23 @@
-// USAGE:
+//  USAGE:
 
-// <Autocomplete 
-//  placeholder={'Countries'}
-//  data={data} //array of objects with key of 'name'
-//  decoration_clr={'orange'} //Left border of result list. Default 'blueviolet'
-//  results={15} //Limits number of results. Default: 10
-//  width={'250px'} //Any unit valid. Default: to 220px
-//  theme={'dark'} //dark, light or transperent. Default: 'dark'
-// />
+//  import { Autocomplete, NumInput, RegularInput, Dropdown } from './components/FormControls';
+
+//  <Autocomplete 
+//      placeholder={'Countries'}
+//      data={data} //array of objects with key of 'name'
+//      decoration_clr={'orange'} //Left border of result list. Default 'blueviolet'
+//      results={15} //Limits number of results. Default: 10
+//      width={'250px'} //Any unit valid. Default: to 220px
+//      theme={'dark'} //dark, light or transperent. Default: 'dark'
+//  />
 
 import React from 'react'
 import styled, {createGlobalStyle } from 'styled-components'
- 
+
 const Autocomplete = (props) => {
     const theme = props.theme || 'dark'
     const decoration  =props.decoration_clr || 'blueviolet'
     const results = props.results || 10
-    // const [value, setValue] = React.useState('')
     const [list, setList] = React.useState([])
     const [bgmain, setBgmain] = React.useState('')
     const [colorHi, setColorHi] = React.useState('')
@@ -107,12 +108,10 @@ const Autocomplete = (props) => {
         }
     }
     const handleChange = (e) => {
-        // console.log(e.target.value)
         props.setValue(e.target.value)
     }
 
     return (
-        
             <Wrapper bredde={props.width || '220px'}>
                 <GlobalStyle />
                 <InpContainer bredde={props.width || '220px'}>
@@ -160,7 +159,6 @@ const RegularInput = (props) => {
     }, [])
 
     const handleChange = (e) => {
-        // console.log(e.target.value)
         props.setValue(e.target.value)
     }
       return (
@@ -249,7 +247,6 @@ const RegularInput = (props) => {
 
 
     const handleChange = (e) => {
-        // console.log(e.target.value)
         props.setValue(e.target.value)
     }
 
@@ -265,18 +262,15 @@ const RegularInput = (props) => {
                     bg_clr={bgmain}
                     clrHi={colorHi}
                     clrLo={colorLo}
-                    // defaultValue={{ label: "Select Dept", value: 0 }}
                     > 
-                    <Option key={Math.random(99, 99999)*1000} theme={theme}></Option>
-                    {
-                        props.data.slice(0, results).map((itm,index) => {
-                            return <Option key={index+1} value={itm.name} theme={theme}>{itm.name}</Option>
-                        })
-                    }
-                    
+                        <Option key={Math.random(99, 99999)*1000} theme={theme}></Option>
+                        {
+                            props.data.slice(0, results).map((itm,index) => {
+                                return <Option key={index+1} value={itm.name} theme={theme}>{itm.name}</Option>
+                            })
+                        }
                     </Select>
                     <Span clrHi={colorHi} clrLo={colorLo}>{props.placeholder || 'Select'}</Span>
-
                 </InpContainer>
     )
 
